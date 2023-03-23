@@ -49,7 +49,7 @@ fig = px.bar(df_monthly,
 fig.update_layout(
     title='Total Sales by Month',
     xaxis_title='Month',
-    yaxis_title='Total Sales $',
+    yaxis_title='Total Sales in $',
     yaxis_tickprefix='$'
 )
 
@@ -57,3 +57,29 @@ fig.write_image(output_dir / 'monthly_sales.png',
                 width=1200,
                 height=400,
                 scale=4)
+
+#total sales by product
+query_product = '''SELECT p.product_name, SUM(s.total_price) as total_sales
+                   FROM sales s
+                   JOIN products p ON s.product_id = p.product_id
+                   GROUP BY p.product_name'''
+df_product = pd.read_sql_query(query_product, con)
+df_product
+
+fig_product = px.bar(df_product,
+                     x='product_name',
+                     y='total_sales',
+                     template=plotly_template,
+                     text='total_sales')
+
+fig_product.update_layout(
+    title='Total Sales by Product',
+    xaxis_title='Product',
+    yaxis_title='Total Sales in $',
+    yaxis_tickprefix='$'    
+) 
+
+fig_product.write_image(output_dir/'product_sales.png',
+                        width=1200,
+                        height=400,
+                        scale=4)
