@@ -110,3 +110,23 @@ fig_customer.write_image(output_dir/'customer_sales.png',
                          height=400,
                          scale=4)
 
+#generate pdf report
+font_color = (64, 64, 64)
+
+chart_filenames = [str(chart_path) for chart_path in output_dir.glob("*.png")]
+
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font('Arial', 'B', 24)
+
+title = f"Sales Report as of {date.today().strftime('%m-%d-%Y')}"
+pdf.set_text_color(*font_color)
+pdf.cell(0, 20, title, align='C', ln=1)
+
+for filename in chart_filenames:
+    pdf.ln(10)
+    pdf.image(filename, x=None, y=None, w=pdf.w - 20, h=0)
+
+pdf.output(output_dir/'sales_report.pdf', "F")
+
+con.close()
