@@ -28,8 +28,7 @@ df = pd.read_sql_query(query, con)
 print(df)
 df.info()
 
-df['sale_date'] = df.to_datetime(df['sale_date'])
-df.info()
+df['sale_date'] = pd.to_datetime(df['sale_date'])
 
 df = df.set_index('sale_date')
 df.head(3)
@@ -83,3 +82,31 @@ fig_product.write_image(output_dir/'product_sales.png',
                         width=1200,
                         height=400,
                         scale=4)
+
+#top customer by sales
+query_customer = '''SELECT c.first_name || ' ' || c.last_name as customer_name, SUM(s.total_price) as total_sales
+                    FROM sales s
+                    JOIN customers c ON s.customer_id = c.customer_id
+                    GROUP BY customer_name
+                    ORDER BY total_sales DESC
+                    LIMIT 10'''
+df_customer = pd.read_sql_query(query_customer, con)
+df_customer
+
+fig_customer = px.bar(df_customer,
+                      x='customer_name',
+                      y='total_sales',
+                      template=plotly_template,
+                      text='total_sales')
+fig_customer.update_layout(
+    title='Top Customers by Sales',
+    xaxis_title='Customer',
+    yaxis_title='Total Sales in $',
+    yaxis_tickprefix='$'
+)
+
+fig_customer.write_image(output_dir/'customer_sales.png',
+                         width=1200,
+                         height=400,
+                         scale=4)
+
